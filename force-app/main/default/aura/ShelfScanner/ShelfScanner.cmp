@@ -1,5 +1,7 @@
 <aura:component implements="flexipage:availableForAllPageTypes" controller="ShelfScanner" access="global">
 
+    <aura:registerEvent name="scanCompletedEvent" type="c:ShelfScanCompleted" />
+
     <aura:attribute name="spinnerWaiting" type="Boolean" default="false" />
     <aura:attribute name="showDatatable" type="Boolean" default="false" />
 
@@ -13,6 +15,7 @@
     <aura:attribute name="shelfDataColumns" type="List" />
     <aura:attribute name="pictureSrc" type="String" />
     <aura:attribute name="fileName" type="String" />
+    <aura:attribute name="majorityBudweiser" type="Boolean" default="false" />
 
     <ltng:require scripts="{! $Resource.resize }" afterScriptsLoaded="{!c.loadResizeListener}" />
 
@@ -20,8 +23,7 @@
 
     <div>
         <center>
-            <lightning:input aura:id="fileInput" type="file" name="file" multiple="false" accept="image/*;capture=camera" files="{!v.files}"
-                onchange="{! c.readFile }" label="Image (max. 5MB):" />
+            <lightning:input aura:id="fileInput" type="file" name="file" multiple="false" accept="image/*;capture=camera" files="{!v.files}" onchange="{! c.readFile }" label="Image (max. 5MB):" />
 
             <div class="image-container">
                 <img aura:id="imgItself" src="{!v.pictureSrc}" />
@@ -30,16 +32,30 @@
             </div>
         </center>
 
+            		
         <aura:if isTrue="{!v.showDatatable}">
-            <lightning:datatable data="{!v.shelfData}" columns="{!v.shelfDataColumns}" hideCheckboxColumn="true" />
+            <lightning:datatable data="{!v.shelfData}" columns="{!v.shelfDataColumns}" keyField="label" hideCheckboxColumn="true" />
             <br />
-            <lightning:button label="Submit" onclick="{!c.store}" class="button-right"></lightning:button>
+
+        </aura:if>
+        <aura:if isTrue="{!v.showDatatable}">
+        			<br/>
+                <aura:if isTrue="{! v.majorityBudweiser }">
+                    <p class="slds-p-top_medium">Check! Budweiser and Bud Light are the majority products!</p>
+                    <aura:set attribute="else"> 
+                        <p class="slds-p-top_medium">Flagged; Budweiser and Bud Light are not majority products. </p>
+                    </aura:set>
+                </aura:if>
         </aura:if>
 
         <aura:if isTrue="{! v.spinnerWaiting }">
             <lightning:spinner size="small" />
         </aura:if>
 
+    </div>
+    
+    <div class="slds-hide"  >
+    		<img aura:id="auraResizeImg" id="resizeImg" src="" class="slds-hide" />
     </div>
 
 </aura:component>
